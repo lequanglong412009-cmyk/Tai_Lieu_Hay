@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from "firebase/firestore";
 
 export interface Document {
   id: string;
@@ -6,12 +6,12 @@ export interface Document {
   description: string;
   price: number;
   category: string;
-  difficulty: 'Basic' | 'Intermediate' | 'Advanced';
+  difficulty: "Basic" | "Intermediate" | "Advanced";
   fileUrl?: string; // Only reachable if purchased
   previewUrl: string; // Public PDF preview
   thumbnailUrl: string;
   salesCount: number;
-  status: 'Hot' | 'Bestseller' | 'New' | 'Regular';
+  status: "Hot" | "Bestseller" | "New" | "Regular";
   totalRevenue?: number;
   createdAt: Timestamp | Date | number;
   updatedAt?: Timestamp | Date | number;
@@ -26,8 +26,28 @@ export interface UserProfile {
   username: string;
   photoURL?: string;
   isAdmin: boolean;
+  totalTopup?: number;
   purchasedDocs: string[]; // List of document IDs
   purchasedCourses?: string[]; // List of course IDs
+  createdAt: Timestamp | Date | number;
+}
+
+export interface Wallet {
+  userId: string;
+  balance: number;
+  currency: string;
+  updatedAt: Timestamp | Date | number;
+}
+
+export interface WalletTransaction {
+  id?: string;
+  userId: string;
+  type: "TOPUP" | "REFUND" | "ADJUSTMENT";
+  amount: number;
+  credits: number;
+  status: "PENDING" | "SUCCESS" | "FAILED";
+  orderCode: string;
+  source: string;
   createdAt: Timestamp | Date | number;
 }
 
@@ -50,7 +70,7 @@ export interface AccessRequest {
   zaloNumber?: string;
   transactionCode?: string;
   message?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   requestedAt: Timestamp;
 }
 
@@ -65,7 +85,7 @@ export interface Course {
   previewUrl?: string;
   link?: string; // The course link (Drive/YouTube) accessible after approval
   category: string;
-  status: 'Hot' | 'New' | 'Upcoming';
+  status: "Hot" | "New" | "Upcoming";
   studentsCount: number;
   totalRevenue?: number;
   createdAt: Timestamp | Date | number;
@@ -85,7 +105,7 @@ export interface CourseRegistration {
   zaloNumber?: string;
   transactionCode?: string;
   message?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   registeredAt: Timestamp;
 }
 

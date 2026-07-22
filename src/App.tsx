@@ -1,15 +1,16 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { Home } from './pages/Home';
-import { DocumentDetail } from './pages/DocumentDetail';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { Profile } from './pages/Profile';
-import { CourseDetail } from './pages/CourseDetail';
-import { Navbar } from './components/layout/Navbar';
-import { Footer } from './components/layout/Footer';
-import { InAppBrowserBanner } from './components/layout/InAppBrowserBanner';
-
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { Home } from "./pages/Home";
+import { DocumentDetail } from "./pages/DocumentDetail";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { Profile } from "./pages/Profile";
+import { CourseDetail } from "./pages/CourseDetail";
+import { WalletPage } from "./pages/WalletPage";
+import { PaymentResultPage } from "./pages/PaymentResultPage";
+import { Navbar } from "./components/layout/Navbar";
+import { Footer } from "./components/layout/Footer";
+import { InAppBrowserBanner } from "./components/layout/InAppBrowserBanner";
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
               <Route path="/course/:id" element={<CourseDetail />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/payment-result" element={<PaymentResultPage />} />
               {/* Fallback */}
               <Route path="*" element={<Home />} />
             </Routes>
