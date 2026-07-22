@@ -22,6 +22,7 @@ export function useWallet() {
 
   useEffect(() => {
     if (!user?.uid) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWallet({ balance: 0, currency: "CREDIT" });
       setTransactions([]);
       setLoading(false);
