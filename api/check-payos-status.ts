@@ -32,10 +32,18 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       return res.status(404).json({ message: "Order not found" });
     }
 
+<<<<<<< HEAD
     const order = orderSnap.data();
     if (!order) {
       return res.status(404).json({ message: "Invalid order record" });
     }
+=======
+const order = orderSnap.data();
+
+if (!order) {
+  return res.status(404).json({ message: "Order data not found" });
+}
+>>>>>>> da511b7daabee24e1c7e731ca8688e686abb7370
     if (order.userId !== uid) {
       return res.status(403).json({ message: "Forbidden" });
     }
