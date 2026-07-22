@@ -1,0 +1,158 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default deny ALL
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper for testing connection
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return request.auth != null && 
+             (request.auth.token.email == 'tailieuhay53@gmail.com' || 
+              request.auth.token.email == 'lequanglong412009@gmail.com');
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Collections ---
+
+    // 1. Documents (Marketplace Items)
+    match /documents/{documentId} {
+      allow read: if true; 
+      allow update: if isAdmin() || (
+        incoming().diff(existing()).affectedKeys().hasOnly(['salesCount', 'totalRevenue'])
+      );
+      allow write: if isAdmin();
+    }
+
+    // 2. Document Files (Protected Download Links)
+    match /documentFiles/{documentId} {
+      allow read: if isAdmin() || (
+        get(/databases/$(database)/documents/documents/$(documentId)).data.get('price', -1) == 0
+      ) || (
+        isSignedIn() && exists(/databases/$(database)/documents/purchases/$(request.auth.uid + '_' + documentId))
+      );
+      allow write: if isAdmin();
+    }
+
+    // 3. User Profiles
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && 
+                    incoming().keys().hasAll(['email', 'displayName', 'isAdmin', 'createdAt']) &&
+                    (incoming().isAdmin == false || (incoming().isAdmin == true && (incoming().email == 'tailieuhay53@gmail.com' || incoming().email == 'lequanglong412009@gmail.com')));
+      allow update: if (isOwner(userId) || isAdmin()) && 
+                    (isAdmin() || (
+                      (!('isAdmin' in incoming()) || incoming().isAdmin == existing().isAdmin || incoming().isAdmin == false) &&
+                      (!('email' in incoming()) || incoming().email == existing().email)
+                    ));
+      allow delete: if isAdmin();
+    }
+
+    // 4. Purchases (Admin can grant access, Users can create if auto approve)
+    match /purchases/{purchaseId} {
+      allow read: if isAdmin() || (isSignedIn() && (resource == null || resource.data.userId == request.auth.uid));
+      allow create: if isAdmin() || (
+        isSignedIn() && 
+        incoming().userId == request.auth.uid &&
+        get(/databases/$(database)/documents/documents/$(incoming().documentId)).data.get('requiresManualAccess', false) == false
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    // 5. Access Requests (Users create, Admin approves/rejects)
+    match /accessRequests/{requestId} {
+      allow get: if isValidId(requestId) && (isAdmin() || (isSignedIn() && (resource == null || resource.data.userId == request.auth.uid)));
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid 
+                    && (incoming().status == 'pending' || (incoming().status == 'approved' && get(/databases/$(database)/documents/documents/$(incoming().documentId)).data.get('requiresManualAccess', false) == false))
+                    && incoming().keys().hasAll(['userId', 'userEmail', 'documentId', 'documentTitle', 'status', 'requestedAt']);
+      allow update: if isAdmin() || (
+        isSignedIn() && existing().userId == request.auth.uid && 
+        incoming().userId == request.auth.uid &&
+        incoming().status == 'pending'
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 6. Global Stats (Publicly readable, increment-only update)
+    match /globalStats/{docId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if docId == 'main';
+      allow update: if docId == 'main' && 
+                    (isAdmin() || (resource == null || incoming().diff(existing()).affectedKeys().hasOnly(['totalViews', 'totalUsers', 'totalDocs', 'totalSales', 'totalRevenue', 'updatedAt'])));
+    }
+
+    // 7. Courses
+    match /courses/{courseId} {
+      allow read: if true;
+      allow update: if isAdmin() || (
+        incoming().diff(existing()).affectedKeys().hasOnly(['studentsCount', 'totalRevenue'])
+      );
+      allow write: if isAdmin();
+    }
+
+    // 8. Course Registration Requests
+    match /courseRegistrations/{requestId} {
+      allow get: if isValidId(requestId) && (isAdmin() || (isSignedIn() && (resource == null || resource.data.userId == request.auth.uid)));
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid 
+                    && (incoming().status == 'pending' || (incoming().status == 'approved' && get(/databases/$(database)/documents/courses/$(incoming().courseId)).data.get('requiresManualAccess', false) == false))
+                    && incoming().keys().hasAll(['userId', 'userEmail', 'courseId', 'courseTitle', 'status'])
+                    && (incoming().get('registeredAt', null) == request.time || incoming().get('createdAt', null) == request.time);
+      allow update: if isAdmin() || (
+        isSignedIn() && existing().userId == request.auth.uid && 
+        incoming().userId == request.auth.uid &&
+        incoming().status == 'pending'
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 9. Course Protected Content
+    match /courseVideos/{courseId} {
+      allow read: if isAdmin() || (
+        get(/databases/$(database)/documents/courses/$(courseId)).data.get('price', -1) == 0
+      ) || (
+        isSignedIn() && exists(/databases/$(database)/documents/courseRegistrations/$(request.auth.uid + '_' + courseId)) &&
+        get(/databases/$(database)/documents/courseRegistrations/$(request.auth.uid + '_' + courseId)).data.status == 'approved'
+      );
+      allow write: if isAdmin();
+    }
+
+    // 10. Quotes
+    match /quotes/{quoteId} {
+      allow get, list: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

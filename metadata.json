@@ -1,0 +1,6 @@
+{
+  "name": "TAILIEUHAY",
+  "description": "Thư viện tài liệu THPT chuẩn Quốc gia, đề thi thử và bí quyết đạt điểm cao dành cho học sinh lớp 10, 11, 12.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

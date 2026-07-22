@@ -1,0 +1,168 @@
+{
+  "entities": {
+    "Document": {
+      "title": "Document",
+      "description": "Metadata for study materials available for purchase",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["Basic", "Intermediate", "Advanced"] },
+        "fileUrl": { "type": "string" },
+        "previewUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "salesCount": { "type": "number" },
+        "rating": { "type": "number" },
+        "reviewsCount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Hot", "Bestseller", "New", "Regular"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description", "price", "category", "fileUrl", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "isAdmin": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "Record of a document purchase",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "documentId": { "type": "string" },
+        "pricePaid": { "type": "number" },
+        "purchasedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "documentId", "pricePaid", "purchasedAt"]
+    },
+    "GlobalStats": {
+      "title": "GlobalStats",
+      "description": "Global application statistics like total views",
+      "type": "object",
+      "properties": {
+        "totalViews": { "type": "number" }
+      },
+      "required": ["totalViews"]
+    },
+    "Course": {
+      "title": "Course",
+      "description": "Information about educational courses",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "instructor": { "type": "string" },
+        "price": { "type": "number" },
+        "duration": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "studentsCount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Hot", "New", "Upcoming"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description", "price", "instructor", "createdAt"]
+    },
+    "CourseRegistration": {
+      "title": "CourseRegistration",
+      "description": "Record of a user registering for a course",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "courseId": { "type": "string" },
+        "courseTitle": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "registeredAt": { "type": "string", "format": "date-time" },
+        "fullName": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "zaloNumber": { "type": "string" },
+        "transactionCode": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "required": ["userId", "courseId", "status", "registeredAt"]
+    },
+    "AccessRequest": {
+      "title": "AccessRequest",
+      "description": "Request for access to a document",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "documentId": { "type": "string" },
+        "documentTitle": { "type": "string" },
+        "status": { "type": "string" },
+        "requestedAt": { "type": "string", "format": "date-time" },
+        "fullName": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "zaloNumber": { "type": "string" },
+        "transactionCode": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "required": ["userId", "documentId", "status", "requestedAt"]
+    },
+    "Quote": {
+      "title": "Quote",
+      "description": "Motivational quote for self development",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "required": ["text", "category"]
+    }
+  },
+  "firestore": {
+    "/documents/{documentId}": {
+      "schema": "Document",
+      "description": "Publicly viewable metadata for study materials"
+    },
+    "/documentFiles/{documentId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "fileUrl": { "type": "string" }
+        },
+        "required": ["fileUrl"]
+      },
+      "description": "Sensitive download links accessible only after purchase"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile data"
+    },
+    "/purchases/{purchaseId}": {
+      "schema": "Purchase",
+      "description": "Private records of successful transactions"
+    },
+    "/globalStats/main": {
+      "schema": "GlobalStats",
+      "description": "Main document for global application stats"
+    },
+    "/courses/{courseId}": {
+      "schema": "Course",
+      "description": "Information about courses"
+    },
+    "/courseRegistrations/{requestId}": {
+      "schema": "CourseRegistration",
+      "description": "Requests to join a course"
+    },
+    "/accessRequests/{requestId}": {
+      "schema": "AccessRequest",
+      "description": "Requests to access a document"
+    },
+    "/quotes/{quoteId}": {
+      "schema": "Quote",
+      "description": "Motivational quotes for the self development section"
+    }
+  }
+}
