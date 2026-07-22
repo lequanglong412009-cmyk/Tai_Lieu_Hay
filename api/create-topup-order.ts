@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
-import { adminDb } from "./utils/firebaseAdmin";
-import { createPayOSOrder } from "./utils/payos";
-import { verifyFirebaseToken } from "./utils/auth";
+import { adminDb } from "./utils/firebaseAdmin.js";
+import { createPayOSOrder } from "./utils/payos.js";
+import { verifyFirebaseToken } from "./utils/auth.js";
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
