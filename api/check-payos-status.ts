@@ -23,7 +23,11 @@ export default async function handler(req: any, res: any) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    const order = orderSnap.data();
+const order = orderSnap.data();
+
+if (!order) {
+  return res.status(404).json({ message: "Order data not found" });
+}
     if (order.userId !== uid) {
       return res.status(403).json({ message: "Forbidden" });
     }
