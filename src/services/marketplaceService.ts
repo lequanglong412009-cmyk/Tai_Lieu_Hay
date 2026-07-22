@@ -147,7 +147,8 @@ export async function checkUsername(username: string) {
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 export async function signInWithGoogle() {
-  const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
+  const browserWindow = window as Window & { opera?: string };
+  const ua = navigator.userAgent || navigator.vendor || browserWindow.opera || "";
   const isInAppBrowser =
     ua.indexOf("FBAN") > -1 ||
     ua.indexOf("FBAV") > -1 ||

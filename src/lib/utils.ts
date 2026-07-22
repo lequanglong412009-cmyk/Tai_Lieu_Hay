@@ -73,15 +73,26 @@ export function getSortWeight(status?: string): number {
   return 1;
 }
 
-export function getTimeValue(time: any): number {
+function hasSeconds(value: unknown): value is { seconds: number } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "seconds" in value &&
+    typeof (value as { seconds?: unknown }).seconds === "number"
+  );
+}
+
+export function getTimeValue(time: unknown): number {
   if (!time) return 0;
-  if (typeof time === 'number') return time;
+  if (typeof time === "number") return time;
   if (time instanceof Date) return time.getTime();
-  if (time.seconds !== undefined) return time.seconds * 1000;
+  if (hasSeconds(time)) return time.seconds * 1000;
   return 0;
 }
 
-export function sortItemsByPriorityAndDate<T extends { status?: string, createdAt?: any, updatedAt?: any }>(items: T[]): T[] {
+type TimeLike = number | Date | { seconds?: number };
+
+export function sortItemsByPriorityAndDate<T extends { status?: string; createdAt?: TimeLike; updatedAt?: TimeLike }>(items: T[]): T[] {
   return [...items].sort((a, b) => {
     const weightA = getSortWeight(a.status);
     const weightB = getSortWeight(b.status);

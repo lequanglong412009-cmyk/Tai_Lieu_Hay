@@ -1,9 +1,13 @@
-import { adminDb } from "./firebaseAdmin";
+import { adminDb } from "./firebaseAdmin.js";
+import type { Transaction } from "firebase-admin/firestore";
 
-export async function claimPayOSOrder(orderCode: string, payosPayload: any) {
+export async function claimPayOSOrder(
+  orderCode: string,
+  payosPayload: Record<string, unknown>,
+) {
   const orderRef = adminDb.collection("paymentOrders").doc(orderCode);
 
-  await adminDb.runTransaction(async (tx: any) => {
+  await adminDb.runTransaction(async (tx: Transaction) => {
     const orderSnap = await tx.get(orderRef);
     if (!orderSnap.exists) {
       throw new Error("Order not found");

@@ -1,24 +1,50 @@
 import { randomUUID } from "crypto";
-import { adminDb } from "./utils/firebaseAdmin";
-import { createPayOSOrder } from "./utils/payos";
-import { verifyFirebaseToken } from "./utils/auth";
+import type { ApiRequest, ApiResponse } from "./utils/apiTypes.js";
+import { adminDb } from "./utils/firebaseAdmin.js";
+import { createPayOSOrder } from "./utils/payos.js";
+import { verifyFirebaseToken } from "./utils/auth.js";
 
-export default async function handler(req: any, res: any) {
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String((error as { message?: unknown }).message || "Server error");
+  }
+  return String(error);
+}
+
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
   try {
-    const uid = await verifyFirebaseToken(req.headers.authorization);
-    const { amount, credits } = req.body;
+    const uid = await verifyFirebaseToken(req.headers?.authorization);
+    const body = req.body as Record<string, unknown> | undefined;
+    const amount = Number(body?.amount);
+    const credits = Number(body?.credits);
 
-    if (!amount || !credits || Number(amount) <= 0 || Number(credits) <= 0) {
+    if (!amount || !credits || amount <= 0 || credits <= 0) {
       return res.status(400).json({ message: "Invalid amount or credits" });
     }
 
     const orderCode = `PO-${Date.now()}-${randomUUID().slice(0, 8)}`;
-    const returnUrl = `${process.env.PAYOS_RETURN_URL}?orderCode=${encodeURIComponent(orderCode)}`;
-    const cancelUrl = `${process.env.PAYOS_CANCEL_URL}?orderCode=${encodeURIComponent(orderCode)}`;
+    const baseUrl =
+      process.env.PAYOS_RETURN_URL ||
+      process.env.APP_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+    const cancelBaseUrl =
+      process.env.PAYOS_CANCEL_URL ||
+      process.env.APP_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+
+    if (!baseUrl || !cancelBaseUrl) {
+      throw new Error(
+        "Missing PAYOS_RETURN_URL or PAYOS_CANCEL_URL and no fallback app URL is configured",
+      );
+    }
+
+    const returnUrl = `${baseUrl}?orderCode=${encodeURIComponent(orderCode)}`;
+    const cancelUrl = `${cancelBaseUrl}?orderCode=${encodeURIComponent(orderCode)}`;
 
     const payosResponse = await createPayOSOrder({
       amount: Number(amount),
@@ -58,8 +84,8 @@ export default async function handler(req: any, res: any) {
       checkoutUrl,
       qrCode,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("create-topup-order error", error);
-    return res.status(500).json({ message: error.message || "Server error" });
+    return res.status(500).json({ message: getErrorMessage(error) });
   }
 }

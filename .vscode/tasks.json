@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Set Vercel env vars",
+			"type": "shell",
+			"command": "cd /d \"c:\\Users\\Administrator\\Documents\\GitHub\\Tai_Lieu_Hay\" && powershell -NoProfile -Command \"$v = Get-Content -Raw 'D:\\Tải xuống\\gen-lang-client-0197484920-firebase-adminsdk-fbsvc-603b1e316c.json' | ConvertFrom-Json | ConvertTo-Json -Compress; Set-Content -Path 'firebase_sa.json' -Value $v; Get-Content -Raw 'firebase_sa.json' | npx --yes vercel env add FIREBASE_SERVICE_ACCOUNT_KEY production --project tailieu-hay --scope tailieuhay-s-projects --yes; npx --yes vercel env add FIREBASE_PROJECT_ID production --value 'gen-lang-client-0197484920' --project tailieu-hay --scope tailieuhay-s-projects --yes; npx --yes vercel env add APP_URL production --value 'https://tailieu-hay.vercel.app' --project tailieu-hay --scope tailieuhay-s-projects --yes; npx --yes vercel env add BACKEND_DEBUG production --value 'false' --project tailieu-hay --scope tailieuhay-s-projects --yes\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Set Vercel env vars",
+			"type": "shell",
+			"command": "powershell -NoProfile -Command \"Set-Location 'c:\\Users\\Administrator\\Documents\\GitHub\\Tai_Lieu_Hay'; $v = Get-Content -Raw 'D:\\Tải xuống\\gen-lang-client-0197484920-firebase-adminsdk-fbsvc-603b1e316c.json' | ConvertFrom-Json | ConvertTo-Json -Compress; Set-Content -Path 'firebase_sa.json' -Value $v; Get-Content -Raw 'firebase_sa.json' | npx --yes vercel env add FIREBASE_SERVICE_ACCOUNT_KEY production --project tailieu-hay --scope tailieuhay-s-projects --yes; npx --yes vercel env add FIREBASE_PROJECT_ID production --value 'gen-lang-client-0197484920' --project tailieu-hay --scope tailieuhay-s-projects --yes; npx --yes vercel env add APP_URL production --value 'https://tailieu-hay.vercel.app' --project tailieu-hay --scope tailieuhay-s-projects --yes; npx --yes vercel env add BACKEND_DEBUG production --value 'false' --project tailieu-hay --scope tailieuhay-s-projects --yes\"",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

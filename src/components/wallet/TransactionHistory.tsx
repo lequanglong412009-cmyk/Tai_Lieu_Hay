@@ -1,6 +1,11 @@
 import React from "react";
+import { WalletTransaction } from "../../types";
 
-export function TransactionHistory({ transactions }: { transactions: any[] }) {
+export function TransactionHistory({
+  transactions,
+}: {
+  transactions: WalletTransaction[];
+}) {
   if (!transactions.length) {
     return (
       <div className="rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 text-center text-slate-400">

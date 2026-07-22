@@ -5,12 +5,17 @@ const CLIENT_ID = process.env.PAYOS_CLIENT_ID || "";
 const API_KEY = process.env.PAYOS_API_KEY || "";
 const CHECKSUM_KEY = process.env.PAYOS_CHECKSUM_KEY || "";
 
+if (!CLIENT_ID || !API_KEY || !CHECKSUM_KEY) {
+  throw new Error(
+    "Missing PayOS environment variables. Ensure PAYOS_CLIENT_ID, PAYOS_API_KEY, and PAYOS_CHECKSUM_KEY are set.",
+  );
+}
+
 function buildSignature(payload: string) {
-  const secret = CHECKSUM_KEY;
-  if (!secret) {
-    throw new Error("Missing PAYOS_CHECKSUM_KEY");
-  }
-  return crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  return crypto
+    .createHmac("sha256", CHECKSUM_KEY)
+    .update(payload)
+    .digest("hex");
 }
 
 export async function createPayOSOrder({

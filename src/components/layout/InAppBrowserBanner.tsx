@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { AlertTriangle, Chrome, MoreVertical, X } from 'lucide-react';
 
-export const InAppBrowserBanner = () => {
-  const [isInApp, setIsInApp] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+function detectInAppBrowser() {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
 
-  useEffect(() => {
-    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
-    const isFb = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("FB_IAB") > -1);
-    const isZalo = (ua.indexOf("Zalo") > -1);
-    const isMessenger = (ua.indexOf("Messenger") > -1);
-    const isInsta = (ua.indexOf("Instagram") > -1);
-    const isGSA = (ua.indexOf("GSA") > -1); // Google Search App
-    
-    if (isFb || isZalo || isMessenger || isInsta || isGSA) {
-      setIsInApp(true);
-    }
-  }, []);
+  const browserWindow = window as Window & { opera?: string };
+  const ua =
+    navigator.userAgent || navigator.vendor || browserWindow.opera || "";
+  return ["FBAN", "FBAV", "FB_IAB", "Zalo", "Instagram", "Messenger", "GSA"].some(
+    (token) => ua.includes(token),
+  );
+}
+
+export const InAppBrowserBanner = () => {
+  const [isInApp, setIsInApp] = useState<boolean>(detectInAppBrowser());
+  const [dismissed, setDismissed] = useState(false);
 
   if (!isInApp || dismissed) return null;
 

@@ -1,9 +1,18 @@
-import { verifyFirebaseToken } from "./utils/auth";
-import { adminDb } from "./utils/firebaseAdmin";
-import { getPayOSOrderStatus } from "./utils/payos";
-import { claimPayOSOrder } from "./utils/orderProcessor";
+import type { ApiRequest, ApiResponse } from "./utils/apiTypes.js";
+import { verifyFirebaseToken } from "./utils/auth.js";
+import { adminDb } from "./utils/firebaseAdmin.js";
+import { getPayOSOrderStatus } from "./utils/payos.js";
+import { claimPayOSOrder } from "./utils/orderProcessor.js";
 
-export default async function handler(req: any, res: any) {
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String((error as { message?: unknown }).message || "Server error");
+  }
+  return String(error);
+}
+
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
@@ -24,6 +33,9 @@ export default async function handler(req: any, res: any) {
     }
 
     const order = orderSnap.data();
+    if (!order) {
+      return res.status(404).json({ message: "Invalid order record" });
+    }
     if (order.userId !== uid) {
       return res.status(403).json({ message: "Forbidden" });
     }
@@ -39,8 +51,8 @@ export default async function handler(req: any, res: any) {
     return res
       .status(200)
       .json({ order: { ...order, status }, statusResponse });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("check-payos-status error", error);
-    return res.status(500).json({ message: error.message || "Server error" });
+    return res.status(500).json({ message: getErrorMessage(error) });
   }
 }

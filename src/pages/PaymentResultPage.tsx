@@ -41,10 +41,12 @@ export const PaymentResultPage: React.FC = () => {
         } else {
           setStatusMessage(`Trạng thái: ${state}`);
         }
-      } catch (err: any) {
-        setStatusMessage(
-          err?.message || "Không thể kiểm tra trạng thái thanh toán.",
-        );
+      } catch (error: unknown) {
+        const err =
+          error instanceof Error
+            ? error
+            : new Error(String(error ?? "Không thể kiểm tra trạng thái thanh toán."));
+        setStatusMessage(err.message || "Không thể kiểm tra trạng thái thanh toán.");
       } finally {
         setLoading(false);
       }

@@ -47,13 +47,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsub();
   }, []);
 
+  const normalizeError = (error: unknown) => {
+    if (error instanceof Error) return { code: undefined, message: error.message };
+    if (typeof error === 'object' && error !== null) {
+      return {
+        code: (error as { code?: string }).code,
+        message: (error as { message?: string }).message,
+      };
+    }
+    return { code: undefined, message: String(error) };
+  };
+
   const login = async () => {
     try {
       await signInWithGoogle();
-    } catch (error: any) {
-      if (error && (error.code === 'auth/popup-closed-by-user' || error.message?.includes('popup-closed-by-user'))) {
+    } catch (error: unknown) {
+      const err = normalizeError(error);
+      if (err.code === 'auth/popup-closed-by-user' || err.message?.includes('popup-closed-by-user')) {
         // User closed the popup, do nothing silently
-      } else if (error && (error.code === 'auth/popup-blocked' || error.message?.includes('popup') || error.code === 'auth/web-storage-unsupported' || error.code === 'auth/unauthorized-domain')) {
+      } else if (err.code === 'auth/popup-blocked' || err.message?.includes('popup') || err.code === 'auth/web-storage-unsupported' || err.code === 'auth/unauthorized-domain') {
         // Fallback to redirect if popup is blocked or unsupported
         try {
            const provider = new GoogleAuthProvider();
@@ -72,8 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // User closed the popup, do nothing
       } else if (error && error.code === 'auth/missing-initial-state') {
          alert("⚠️ Lỗi trình duyệt: Không thể đăng nhập bằng trình duyệt Zalo/Facebook.\n\nVui lòng nhấn vào biểu tượng 3 chấm (⋮) ở góc phải màn hình và chọn 'Mở bằng trình duyệt' (Chrome/Safari) để có thể đăng nhập.");
-      } else if (error && error.code !== 'auth/popup-blocked' && error.code !== 'auth/web-storage-unsupported' && error.code !== 'auth/unauthorized-domain') {
-         alert(`Đăng nhập thất bại. Lỗi: ${error?.message || 'Không xác định'}\n\n(Mã lỗi: ${error?.code || 'unknown'})`);
+      } else if (err.code !== 'auth/popup-blocked' && err.code !== 'auth/web-storage-unsupported' && err.code !== 'auth/unauthorized-domain') {
+         alert(`Đăng nhập thất bại. Lỗi: ${err.message || 'Không xác định'}\n\n(Mã lỗi: ${err.code || 'unknown'})`);
       }
     }
   };

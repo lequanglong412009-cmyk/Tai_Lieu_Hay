@@ -1,4 +1,4 @@
-import { adminAuth } from "./firebaseAdmin";
+import { adminAuth } from "./firebaseAdmin.js";
 
 export async function verifyFirebaseToken(authorization?: string) {
   if (!authorization?.startsWith("Bearer ")) {

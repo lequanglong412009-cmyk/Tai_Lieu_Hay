@@ -5,11 +5,18 @@ import { TopupModal } from "../components/wallet/TopupModal";
 import { PaymentQRCode } from "../components/wallet/PaymentQRCode";
 import { TransactionHistory } from "../components/wallet/TransactionHistory";
 
+type PaymentData = {
+  orderCode: string;
+  paymentLinkId: string;
+  checkoutUrl: string;
+  qrCode: string;
+};
+
 export const WalletPage: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const { wallet, transactions, loading, topup } = useWallet();
   const [isTopupOpen, setIsTopupOpen] = useState(false);
-  const [paymentData, setPaymentData] = useState<any>(null);
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,9 +27,13 @@ export const WalletPage: React.FC = () => {
       const data = await topup(amount, credits);
       setPaymentData(data);
       setIsTopupOpen(false);
-    } catch (err: any) {
-      console.error("Topup error", err);
-      setError(err?.message || "Không thể tạo đơn nạp tiền.");
+    } catch (error: unknown) {
+      console.error("Topup error", error);
+      const err =
+        error instanceof Error
+          ? error
+          : new Error(String(error ?? "Không thể tạo đơn nạp tiền."));
+      setError(err.message || "Không thể tạo đơn nạp tiền.");
     } finally {
       setProcessing(false);
     }
