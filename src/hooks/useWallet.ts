@@ -14,9 +14,9 @@ import { Wallet, WalletTransaction } from "../types";
 
 export function useWallet() {
   const { user } = useAuth();
-  const [wallet, setWallet] = useState<Wallet | { balance: number; currency: string }>(
-    { balance: 0, currency: "CREDIT" },
-  );
+  const [wallet, setWallet] = useState<
+    Wallet | { balance: number; currency: string }
+  >({ balance: 0, currency: "CREDIT" });
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 

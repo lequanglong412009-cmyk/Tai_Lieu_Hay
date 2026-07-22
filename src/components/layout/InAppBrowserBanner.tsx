@@ -1,17 +1,23 @@
-import React, { useState } from 'react';
-import { AlertTriangle, Chrome, MoreVertical, X } from 'lucide-react';
+import React, { useState } from "react";
+import { AlertTriangle, Chrome, MoreVertical, X } from "lucide-react";
 
 function detectInAppBrowser() {
-  if (typeof navigator === 'undefined') {
+  if (typeof navigator === "undefined") {
     return false;
   }
 
   const browserWindow = window as Window & { opera?: string };
   const ua =
     navigator.userAgent || navigator.vendor || browserWindow.opera || "";
-  return ["FBAN", "FBAV", "FB_IAB", "Zalo", "Instagram", "Messenger", "GSA"].some(
-    (token) => ua.includes(token),
-  );
+  return [
+    "FBAN",
+    "FBAV",
+    "FB_IAB",
+    "Zalo",
+    "Instagram",
+    "Messenger",
+    "GSA",
+  ].some((token) => ua.includes(token));
 }
 
 export const InAppBrowserBanner = () => {
@@ -28,24 +34,40 @@ export const InAppBrowserBanner = () => {
             <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
           </div>
           <div>
-            <h3 className="font-bold text-sm sm:text-base leading-tight tracking-tight">Trình duyệt không hỗ trợ đăng nhập</h3>
-            <p className="text-xs sm:text-sm font-medium opacity-80 mt-0.5">Vui lòng mở trang web bằng trình duyệt chuẩn (Chrome/Safari)</p>
+            <h3 className="font-bold text-sm sm:text-base leading-tight tracking-tight">
+              Trình duyệt không hỗ trợ đăng nhập
+            </h3>
+            <p className="text-xs sm:text-sm font-medium opacity-80 mt-0.5">
+              Vui lòng mở trang web bằng trình duyệt chuẩn (Chrome/Safari)
+            </p>
           </div>
         </div>
-        
+
         <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium w-full bg-white/60 p-2.5 sm:px-4 rounded-xl border border-amber-200/60 shadow-sm">
-           <div className="flex items-center gap-2.5">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 shadow-sm">1</span>
-              <span>Nhấn biểu tượng <MoreVertical className="w-4 h-4 inline text-slate-600 bg-slate-100 rounded-[4px] border border-slate-200 shadow-sm mx-0.5" /> (3 chấm) ở góc phải</span>
-           </div>
-           <div className="hidden sm:block text-amber-300">→</div>
-           <div className="flex items-center gap-2.5">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 shadow-sm">2</span>
-              <span>Chọn <b>Mở bằng trình duyệt</b> <Chrome className="w-4 h-4 inline text-blue-500 mx-0.5" /> để đăng nhập</span>
-           </div>
+          <div className="flex items-center gap-2.5">
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 shadow-sm">
+              1
+            </span>
+            <span>
+              Nhấn biểu tượng{" "}
+              <MoreVertical className="w-4 h-4 inline text-slate-600 bg-slate-100 rounded-[4px] border border-slate-200 shadow-sm mx-0.5" />{" "}
+              (3 chấm) ở góc phải
+            </span>
+          </div>
+          <div className="hidden sm:block text-amber-300">→</div>
+          <div className="flex items-center gap-2.5">
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 shadow-sm">
+              2
+            </span>
+            <span>
+              Chọn <b>Mở bằng trình duyệt</b>{" "}
+              <Chrome className="w-4 h-4 inline text-blue-500 mx-0.5" /> để đăng
+              nhập
+            </span>
+          </div>
         </div>
 
-        <button 
+        <button
           onClick={() => setDismissed(true)}
           className="absolute top-3 right-3 sm:relative sm:top-auto sm:right-auto p-1.5 hover:bg-amber-200/50 rounded-full text-amber-600 transition-colors"
         >

@@ -148,7 +148,8 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 export async function signInWithGoogle() {
   const browserWindow = window as Window & { opera?: string };
-  const ua = navigator.userAgent || navigator.vendor || browserWindow.opera || "";
+  const ua =
+    navigator.userAgent || navigator.vendor || browserWindow.opera || "";
   const isInAppBrowser =
     ua.indexOf("FBAN") > -1 ||
     ua.indexOf("FBAV") > -1 ||

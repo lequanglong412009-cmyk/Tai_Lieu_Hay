@@ -45,8 +45,12 @@ export const PaymentResultPage: React.FC = () => {
         const err =
           error instanceof Error
             ? error
-            : new Error(String(error ?? "Không thể kiểm tra trạng thái thanh toán."));
-        setStatusMessage(err.message || "Không thể kiểm tra trạng thái thanh toán.");
+            : new Error(
+                String(error ?? "Không thể kiểm tra trạng thái thanh toán."),
+              );
+        setStatusMessage(
+          err.message || "Không thể kiểm tra trạng thái thanh toán.",
+        );
       } finally {
         setLoading(false);
       }

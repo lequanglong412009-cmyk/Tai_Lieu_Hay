@@ -6,25 +6,25 @@
  * - https://drive.google.com/uc?id={ID}
  */
 export function getGoogleDriveThumbnail(url: string): string {
-  if (!url) return '';
-  if (!url.includes('drive.google.com')) return url;
+  if (!url) return "";
+  if (!url.includes("drive.google.com")) return url;
 
   try {
     const urlObj = new URL(url);
-    let id = '';
+    let id = "";
 
-    if (url.includes('/file/d/')) {
-      const parts = urlObj.pathname.split('/');
-      id = parts[parts.indexOf('d') + 1];
-    } else if (urlObj.searchParams.has('id')) {
-      id = urlObj.searchParams.get('id') || '';
+    if (url.includes("/file/d/")) {
+      const parts = urlObj.pathname.split("/");
+      id = parts[parts.indexOf("d") + 1];
+    } else if (urlObj.searchParams.has("id")) {
+      id = urlObj.searchParams.get("id") || "";
     }
 
     if (id) {
       return `https://lh3.googleusercontent.com/d/${id}`;
     }
   } catch (e) {
-    console.warn('Invalid URL provided to getGoogleDriveThumbnail', e);
+    console.warn("Invalid URL provided to getGoogleDriveThumbnail", e);
   }
 
   return url;
@@ -34,25 +34,25 @@ export function getGoogleDriveThumbnail(url: string): string {
  * Converts Google Drive sharing links to embeddable preview links
  */
 export function getGoogleDriveEmbedUrl(url: string): string {
-  if (!url) return '';
-  if (!url.includes('drive.google.com')) return url;
+  if (!url) return "";
+  if (!url.includes("drive.google.com")) return url;
 
   try {
     const urlObj = new URL(url);
-    let id = '';
+    let id = "";
 
-    if (url.includes('/file/d/')) {
-      const parts = urlObj.pathname.split('/');
-      id = parts[parts.indexOf('d') + 1];
-    } else if (urlObj.searchParams.has('id')) {
-      id = urlObj.searchParams.get('id') || '';
+    if (url.includes("/file/d/")) {
+      const parts = urlObj.pathname.split("/");
+      id = parts[parts.indexOf("d") + 1];
+    } else if (urlObj.searchParams.has("id")) {
+      id = urlObj.searchParams.get("id") || "";
     }
 
     if (id) {
       return `https://drive.google.com/file/d/${id}/preview`;
     }
   } catch (e) {
-    console.warn('Invalid URL provided to getGoogleDriveEmbedUrl', e);
+    console.warn("Invalid URL provided to getGoogleDriveEmbedUrl", e);
   }
 
   return url;
@@ -62,14 +62,14 @@ export function getGoogleDriveEmbedUrl(url: string): string {
  * Combines Tailwind classes
  */
 export function cn(...classes: (string | undefined | null | boolean)[]) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
 export function getSortWeight(status?: string): number {
-  if (status === 'New') return 4;
-  if (status === 'Hot') return 3;
-  if (status === 'Bestseller') return 2;
-  if (status === 'Upcoming') return 2;
+  if (status === "New") return 4;
+  if (status === "Hot") return 3;
+  if (status === "Bestseller") return 2;
+  if (status === "Upcoming") return 2;
   return 1;
 }
 
@@ -92,18 +92,26 @@ export function getTimeValue(time: unknown): number {
 
 type TimeLike = number | Date | { seconds?: number };
 
-export function sortItemsByPriorityAndDate<T extends { status?: string; createdAt?: TimeLike; updatedAt?: TimeLike }>(items: T[]): T[] {
+export function sortItemsByPriorityAndDate<
+  T extends { status?: string; createdAt?: TimeLike; updatedAt?: TimeLike },
+>(items: T[]): T[] {
   return [...items].sort((a, b) => {
     const weightA = getSortWeight(a.status);
     const weightB = getSortWeight(b.status);
-    
+
     if (weightA !== weightB) {
       return weightB - weightA; // Higher weight first
     }
-    
-    const timeA = Math.max(getTimeValue(a.updatedAt), getTimeValue(a.createdAt));
-    const timeB = Math.max(getTimeValue(b.updatedAt), getTimeValue(b.createdAt));
-    
+
+    const timeA = Math.max(
+      getTimeValue(a.updatedAt),
+      getTimeValue(a.createdAt),
+    );
+    const timeB = Math.max(
+      getTimeValue(b.updatedAt),
+      getTimeValue(b.createdAt),
+    );
+
     return timeB - timeA; // Newer time first
   });
 }

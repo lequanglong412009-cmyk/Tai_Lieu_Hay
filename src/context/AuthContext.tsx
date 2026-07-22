@@ -1,9 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserProfile } from '../types';
-import { getProfile, signInWithGoogle, syncProfile } from '../services/marketplaceService';
-import { auth } from '../lib/firebase';
-import { onAuthStateChanged, signOut, signInWithRedirect, GoogleAuthProvider, getRedirectResult } from 'firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { UserProfile } from "../types";
+import {
+  getProfile,
+  signInWithGoogle,
+  syncProfile,
+} from "../services/marketplaceService";
+import { auth } from "../lib/firebase";
+import {
+  onAuthStateChanged,
+  signOut,
+  signInWithRedirect,
+  GoogleAuthProvider,
+  getRedirectResult,
+} from "firebase/auth";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -14,28 +24,32 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check for redirect result first
-    getRedirectResult(auth).catch(err => console.error("Redirect login error:", err));
+    getRedirectResult(auth).catch((err) =>
+      console.error("Redirect login error:", err),
+    );
 
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
           let profile = await getProfile(firebaseUser.uid);
           if (!profile) {
-             profile = await syncProfile(firebaseUser);
+            profile = await syncProfile(firebaseUser);
           }
           setUser(profile);
         } catch (error) {
           console.error("Failed to load profile", error);
           setUser({
             uid: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            displayName: firebaseUser.displayName || '',
+            email: firebaseUser.email || "",
+            displayName: firebaseUser.displayName || "",
             photoURL: firebaseUser.photoURL || undefined,
             isAdmin: false,
           });
@@ -49,8 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const normalizeError = (error: unknown) => {
-    if (error instanceof Error) return { code: undefined, message: error.message };
-    if (typeof error === 'object' && error !== null) {
+    if (error instanceof Error)
+      return { code: undefined, message: error.message };
+    if (typeof error === "object" && error !== null) {
       return {
         code: (error as { code?: string }).code,
         message: (error as { message?: string }).message,
@@ -64,29 +79,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithGoogle();
     } catch (error: unknown) {
       const err = normalizeError(error);
-      if (err.code === 'auth/popup-closed-by-user' || err.message?.includes('popup-closed-by-user')) {
+      if (
+        err.code === "auth/popup-closed-by-user" ||
+        err.message?.includes("popup-closed-by-user")
+      ) {
         // User closed the popup, do nothing silently
-      } else if (err.code === 'auth/popup-blocked' || err.message?.includes('popup') || err.code === 'auth/web-storage-unsupported' || err.code === 'auth/unauthorized-domain') {
+      } else if (
+        err.code === "auth/popup-blocked" ||
+        err.message?.includes("popup") ||
+        err.code === "auth/web-storage-unsupported" ||
+        err.code === "auth/unauthorized-domain"
+      ) {
         // Fallback to redirect if popup is blocked or unsupported
         try {
-           const provider = new GoogleAuthProvider();
-           await signInWithRedirect(auth, provider);
+          const provider = new GoogleAuthProvider();
+          await signInWithRedirect(auth, provider);
         } catch (redirectErr) {
-           console.error("Redirect fallback failed:", redirectErr);
-           alert("Không thể chuyển hướng đăng nhập. Vui lòng mở trang web bằng trình duyệt Safari hoặc Chrome.");
+          console.error("Redirect fallback failed:", redirectErr);
+          alert(
+            "Không thể chuyển hướng đăng nhập. Vui lòng mở trang web bằng trình duyệt Safari hoặc Chrome.",
+          );
         }
       } else {
         console.error("Login failed:", error);
       }
-      
-      if (error && error.message && error.message.includes("In-app browser detected")) {
+
+      if (
+        error &&
+        error.message &&
+        error.message.includes("In-app browser detected")
+      ) {
         // already alerted in signInWithGoogle
-      } else if (error && (error.code === 'auth/popup-closed-by-user' || error.message?.includes('popup-closed-by-user'))) {
+      } else if (
+        error &&
+        (error.code === "auth/popup-closed-by-user" ||
+          error.message?.includes("popup-closed-by-user"))
+      ) {
         // User closed the popup, do nothing
-      } else if (error && error.code === 'auth/missing-initial-state') {
-         alert("⚠️ Lỗi trình duyệt: Không thể đăng nhập bằng trình duyệt Zalo/Facebook.\n\nVui lòng nhấn vào biểu tượng 3 chấm (⋮) ở góc phải màn hình và chọn 'Mở bằng trình duyệt' (Chrome/Safari) để có thể đăng nhập.");
-      } else if (err.code !== 'auth/popup-blocked' && err.code !== 'auth/web-storage-unsupported' && err.code !== 'auth/unauthorized-domain') {
-         alert(`Đăng nhập thất bại. Lỗi: ${err.message || 'Không xác định'}\n\n(Mã lỗi: ${err.code || 'unknown'})`);
+      } else if (error && error.code === "auth/missing-initial-state") {
+        alert(
+          "⚠️ Lỗi trình duyệt: Không thể đăng nhập bằng trình duyệt Zalo/Facebook.\n\nVui lòng nhấn vào biểu tượng 3 chấm (⋮) ở góc phải màn hình và chọn 'Mở bằng trình duyệt' (Chrome/Safari) để có thể đăng nhập.",
+        );
+      } else if (
+        err.code !== "auth/popup-blocked" &&
+        err.code !== "auth/web-storage-unsupported" &&
+        err.code !== "auth/unauthorized-domain"
+      ) {
+        alert(
+          `Đăng nhập thất bại. Lỗi: ${err.message || "Không xác định"}\n\n(Mã lỗi: ${err.code || "unknown"})`,
+        );
       }
     }
   };
@@ -105,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

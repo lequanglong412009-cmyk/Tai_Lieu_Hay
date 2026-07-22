@@ -29,7 +29,9 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
     const orderCode =
       (body?.orderCode as string | undefined) ||
-      ((body?.data as Record<string, unknown> | undefined)?.orderCode as string | undefined) ||
+      ((body?.data as Record<string, unknown> | undefined)?.orderCode as
+        | string
+        | undefined) ||
       (req.query?.orderCode as string | undefined) ||
       "";
     if (!orderCode) {
