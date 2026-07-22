@@ -15,7 +15,7 @@ function detectInAppBrowser() {
 }
 
 export const InAppBrowserBanner = () => {
-  const [isInApp, setIsInApp] = useState<boolean>(detectInAppBrowser());
+  const [isInApp] = useState<boolean>(detectInAppBrowser());
   const [dismissed, setDismissed] = useState(false);
 
   if (!isInApp || dismissed) return null;
