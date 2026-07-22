@@ -131,10 +131,11 @@ export async function signInWithGoogle() {
                          (ua.indexOf("Zalo") > -1) ||
                          (ua.indexOf("Line") > -1) ||
                          (ua.indexOf("FB_IAB") > -1) ||
+                         (ua.indexOf("GSA") > -1) ||
                          (ua.indexOf("Messenger") > -1);
   
   if (isInAppBrowser) {
-    alert("⚠️ Lỗi trình duyệt Zalo/Facebook!\n\nVui lòng nhấn vào biểu tượng 3 chấm (⋮) ở góc phải màn hình và chọn 'Mở bằng trình duyệt' (Chrome/Safari) để có thể đăng nhập.");
+    alert("⚠️ Lỗi trình duyệt được nhúng!\n\nVui lòng nhấn vào biểu tượng 3 chấm (⋮) ở góc phải màn hình và chọn 'Mở bằng trình duyệt' (Chrome/Safari) để có thể đăng nhập.");
     throw new Error("In-app browser detected.");
   }
 
@@ -200,7 +201,7 @@ export async function signInWithGoogle() {
   }
 }
 
-async function syncProfile(user: { uid: string; email: string | null; displayName?: string | null; photoURL?: string | null }) {
+export async function syncProfile(user: { uid: string; email: string | null; displayName?: string | null; photoURL?: string | null }) {
   const email = user.email || '';
   const displayName = user.displayName || email.split('@')[0] || 'User';
   

@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-import { getProfile, signInWithGoogle } from '../services/marketplaceService';
+import { getProfile, signInWithGoogle, syncProfile } from '../services/marketplaceService';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut, signInWithRedirect, GoogleAuthProvider, getRedirectResult } from 'firebase/auth';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -18,10 +18,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for redirect result first
+    getRedirectResult(auth).catch(err => console.error("Redirect login error:", err));
+
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          const profile = await getProfile(firebaseUser.uid);
+          let profile = await getProfile(firebaseUser.uid);
+          if (!profile) {
+             profile = await syncProfile(firebaseUser);
+          }
           setUser(profile);
         } catch (error) {
           console.error("Failed to load profile", error);
@@ -47,6 +53,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       if (error && (error.code === 'auth/popup-closed-by-user' || error.message?.includes('popup-closed-by-user'))) {
         // User closed the popup, do nothing silently
+      } else if (error && (error.code === 'auth/popup-blocked' || error.message?.includes('popup') || error.code === 'auth/web-storage-unsupported' || error.code === 'auth/unauthorized-domain')) {
+        // Fallback to redirect if popup is blocked or unsupported
+        try {
+           const provider = new GoogleAuthProvider();
+           await signInWithRedirect(auth, provider);
+        } catch (redirectErr) {
+           console.error("Redirect fallback failed:", redirectErr);
+           alert("Không thể chuyển hướng đăng nhập. Vui lòng mở trang web bằng trình duyệt Safari hoặc Chrome.");
+        }
       } else {
         console.error("Login failed:", error);
       }
@@ -57,8 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // User closed the popup, do nothing
       } else if (error && error.code === 'auth/missing-initial-state') {
          alert("⚠️ Lỗi trình duyệt: Không thể đăng nhập bằng trình duyệt Zalo/Facebook.\n\nVui lòng nhấn vào biểu tượng 3 chấm (⋮) ở góc phải màn hình và chọn 'Mở bằng trình duyệt' (Chrome/Safari) để có thể đăng nhập.");
-      } else {
-         alert("Đăng nhập thất bại. Vui lòng mở trang web bằng trình duyệt Safari hoặc Chrome và thử lại.");
+      } else if (error && error.code !== 'auth/popup-blocked' && error.code !== 'auth/web-storage-unsupported' && error.code !== 'auth/unauthorized-domain') {
+         alert(`Đăng nhập thất bại. Lỗi: ${error?.message || 'Không xác định'}\n\n(Mã lỗi: ${error?.code || 'unknown'})`);
       }
     }
   };

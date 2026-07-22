@@ -11,8 +11,9 @@ export const InAppBrowserBanner = () => {
     const isZalo = (ua.indexOf("Zalo") > -1);
     const isMessenger = (ua.indexOf("Messenger") > -1);
     const isInsta = (ua.indexOf("Instagram") > -1);
+    const isGSA = (ua.indexOf("GSA") > -1); // Google Search App
     
-    if (isFb || isZalo || isMessenger || isInsta) {
+    if (isFb || isZalo || isMessenger || isInsta || isGSA) {
       setIsInApp(true);
     }
   }, []);
@@ -28,7 +29,7 @@ export const InAppBrowserBanner = () => {
           </div>
           <div>
             <h3 className="font-bold text-sm sm:text-base leading-tight tracking-tight">Trình duyệt không hỗ trợ đăng nhập</h3>
-            <p className="text-xs sm:text-sm font-medium opacity-80 mt-0.5">Vui lòng thoát khỏi ứng dụng Zalo/Facebook</p>
+            <p className="text-xs sm:text-sm font-medium opacity-80 mt-0.5">Vui lòng mở trang web bằng trình duyệt chuẩn (Chrome/Safari)</p>
           </div>
         </div>
         
